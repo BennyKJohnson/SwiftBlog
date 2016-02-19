@@ -1,9 +1,9 @@
 //
-//  Controller.swift
-//  Tap Tracker
+//  RESTController.swift
+//  SwiftBlog
 //
-//  Created by Benjamin Johnson on 5/02/2016.
-//
+//  Created by Benjamin Johnson on 9/02/2016.
+//  Copyright © 2016 Benjamin Johnson. All rights reserved.
 //
 
 import PerfectLib
@@ -13,11 +13,11 @@ protocol RESTController: RequestHandler {
     
     var modelName: String { get }
     
-    func show(identifier: Int, context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws ->  MustacheEvaluationContext.MapType
+    func show(identifier: Int, request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
     
-    func list(context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws ->  MustacheEvaluationContext.MapType
+    func list(request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
     
-    func create(context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws ->  MustacheEvaluationContext.MapType
+    func create(request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
     
     func new(request: WebRequest, response: WebResponse)
     
@@ -25,138 +25,110 @@ protocol RESTController: RequestHandler {
     
     func delete(identifier: Int, request: WebRequest, response: WebResponse)
     
-    func edit(identifier: Int, context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws ->  MustacheEvaluationContext.MapType
-
-    func prepareMustacheFromURL(url: String, values: [String: Any]) -> MustacheTemplate
+    func edit(identifier: Int, request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
     
 }
 
 extension RESTController {
     
-    func prepareMustacheFromURL(url: String, values: [String: Any]) -> MustacheTemplate {
+    func parseMustacheFromURL(url: String, withValues values: [String: Any]) -> String {
         
         let template = MustacheTemplate.FromURL(url)!
-        
-        let context = MustacheEvaluationContext(map: MustacheEvaluationContext.MapType())
+        let context =  MustacheEvaluationContext(map: values)
         
         let collector = MustacheEvaluationOutputCollector()
+        template.evaluate(context, collector: collector)
         
-        // Call Show
-        let newContext = MustacheEvaluationContext(map: values)
-        template.evaluate(newContext, collector: collector)
-        
-        return template
+        return collector.asString()
     }
     
     func handleRequest(request: WebRequest, response: WebResponse) {
         
         print(request.requestURI())
         
+        let requestMethod = RequestMethod(rawValue: request.requestMethod())!
+ 
+        
         // Show handle
         if let id = request.urlVariables["id"],identifier = Int(id) {
-            print("Request Method: \(request.requestMethod())")
             
-            if request.requestMethod() == "POST" {
-                
+            switch(requestMethod) {
+            case .POST, .PATCH, .PUT:
                 update(identifier, request: request, response: response)
                 
-            } else if request.requestMethod() == "DELETE" {
-              
+            case .DELETE:
                 delete(identifier, request: request, response: response)
                 
-            } else {
+            case .GET:
                 
-                if let action = request.urlVariables["action"]{
+                if let _ = request.urlVariables["action"]{
                     
                     // Call Show
                     let templateURL = request.documentRoot + "//\(modelName)s/edit.mustache"
-                    
-                    let template = MustacheTemplate.FromURL(templateURL)!
-                    
-                    let context = MustacheEvaluationContext(map: MustacheEvaluationContext.MapType())
-                    
-                    let collector = MustacheEvaluationOutputCollector()
-                    
-                    // Call Show
-                    var values = try! edit(identifier, context: context, collector: collector)
+                 
+                    var values = try! edit(identifier, request: request, response: response)
                     values["url"] = "/\(modelName)s/\(identifier)"
-                    let newContext = MustacheEvaluationContext(map: values)
-                    template.evaluate(newContext, collector: collector)
-
-                    response.appendBodyString(collector.asString())
+                    
+                    response.appendBodyString(parseMustacheFromURL(templateURL, withValues: values))
                     response.requestCompletedCallback()
                     
                 } else {
                     
-                    // Call Show
-                    let templateURL = request.documentRoot + "//\(modelName)s/show.mustache"
-                    let template = MustacheTemplate.FromURL(templateURL)!
+                    let templateURL: String
+                    if request.format == "json" {
+                        templateURL = request.documentRoot + "//\(modelName)s/show.json.mustache"
+                    } else {
+                        templateURL = request.documentRoot + "//\(modelName)s/show.mustache"
+                    }
+
+                    let values = try! show(identifier, request: request, response: response)
                     
-                    let context = MustacheEvaluationContext(map: MustacheEvaluationContext.MapType())
-                    let collector = MustacheEvaluationOutputCollector()
-                    
-                    let values = try! show(identifier, context: context, collector: collector)
-                    let newContext = MustacheEvaluationContext(map: values)
-                    template.evaluate(newContext, collector: collector)
-                    
-                    response.appendBodyString(collector.asString())
+                    response.appendBodyString(parseMustacheFromURL(templateURL, withValues: values))
                     response.requestCompletedCallback()
                 }
-                
-          
             }
             
         } else if let action = request.requestURI().componentsSeparatedByString("/").last where action == "new" {
             
                 let templateURL = request.documentRoot + "//\(modelName)s/new.mustache"
-                let template = MustacheTemplate.FromURL(templateURL)!
-                
-                let context = MustacheEvaluationContext(map: MustacheEvaluationContext.MapType())
-                
-                let collector = MustacheEvaluationOutputCollector()
-                
+    
                 // Call Show
-                let values = try! create(context, collector: collector)
-                let newContext = MustacheEvaluationContext(map: values)
-                template.evaluate(newContext, collector: collector)
-                
-                response.appendBodyString(collector.asString())
+                let values = try! create(request, response: response)
+     
+                response.appendBodyString(parseMustacheFromURL(templateURL, withValues: values))
                 response.requestCompletedCallback()
             
         } else {
             
-            if request.requestMethod() == "POST" {
+            if requestMethod == .POST {
                 
                 new(request, response: response)
                 
             } else {
                 
-                let templateURL = request.documentRoot + "//index.mustache"
-                let template = MustacheTemplate.FromURL(templateURL)!
+                // Show all posts
+                let templateURL: String
+                if request.format == "json" {
+                    templateURL = request.documentRoot + "//\(modelName)s/index.json.mustache"
+                } else {
+                    templateURL = request.documentRoot + "//\(modelName)s/index.mustache"
+                }
                 
-                let context = MustacheEvaluationContext(map: MustacheEvaluationContext.MapType())
-                
-                let collector = MustacheEvaluationOutputCollector()
-                
-                // Call Show
-                let values = try! list(context, collector: collector)
-                let newContext = MustacheEvaluationContext(map: values)
-                template.evaluate(newContext, collector: collector)
-                
-                response.appendBodyString(collector.asString())
+                let values = try! list(request, response: response)
+                response.appendBodyString(parseMustacheFromURL(templateURL, withValues: values))
                 response.requestCompletedCallback()
+                
             }
         }
     }
     
-    func show(context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws ->  MustacheEvaluationContext.MapType {
-        
+    func show(identifier: Int,request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType {
+        response.setStatus(404, message: "The file \(request.requestURI()) was not found.")
         return MustacheEvaluationContext.MapType()
-        
     }
     
-    func edit(context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws ->  MustacheEvaluationContext.MapType {
-        
+    func edit(identifier: Int, request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType {
+        response.setStatus(404, message: "The file \(request.requestURI()) was not found.")
         return MustacheEvaluationContext.MapType()
     }
     
@@ -174,14 +146,14 @@ extension RESTController {
         
     }
     
-    func list(context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws ->  MustacheEvaluationContext.MapType {
-        
+    func list(request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType {
+        response.setStatus(404, message: "The file \(request.requestURI()) was not found.")
         return MustacheEvaluationContext.MapType()
         
     }
     
-    func create(context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws ->  MustacheEvaluationContext.MapType {
-        
+    func create(request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType {
+        response.setStatus(404, message: "The file \(request.requestURI()) was not found.")
         return MustacheEvaluationContext.MapType()
     
     }

@@ -1,10 +1,11 @@
 //
 //  Post.swift
-//  Tap Tracker
+//  SwiftBlog
 //
-//  Created by Benjamin Johnson on 5/02/2016.
+//  Created by Benjamin Johnson on 9/02/2016.
+//  Copyright © 2016 Benjamin Johnson. All rights reserved.
 //
-//
+
 
 import MongoDB
 import PerfectLib

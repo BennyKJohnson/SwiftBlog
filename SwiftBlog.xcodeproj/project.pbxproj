@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6F50F63F1C7324A2008186C7 /* DBManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F50F63E1C7324A2008186C7 /* DBManagedObject.swift */; };
 		6FA4F8881C69B9C30047624A /* SwiftBlog.h in Headers */ = {isa = PBXBuildFile; fileRef = 6FA4F8871C69B9C30047624A /* SwiftBlog.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6FA4F88F1C69B9C40047624A /* SwiftBlog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FA4F8841C69B9C30047624A /* SwiftBlog.framework */; };
 		6FA4F8941C69B9C40047624A /* SwiftBlogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA4F8931C69B9C40047624A /* SwiftBlogTests.swift */; };
@@ -20,6 +21,7 @@
 		6FA4F8B21C69D5DB0047624A /* RESTController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA4F8AF1C69D5DB0047624A /* RESTController.swift */; };
 		6FA4F8B31C69D5DB0047624A /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA4F8B01C69D5DB0047624A /* Post.swift */; };
 		6FA4F8B41C69D5DB0047624A /* PostController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA4F8B11C69D5DB0047624A /* PostController.swift */; };
+		6FCECE641C76E1D8009A5B3E /* PerfectExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCECE631C76E1D8009A5B3E /* PerfectExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +48,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6F50F63E1C7324A2008186C7 /* DBManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBManagedObject.swift; sourceTree = "<group>"; };
 		6FA4F8841C69B9C30047624A /* SwiftBlog.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftBlog.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6FA4F8871C69B9C30047624A /* SwiftBlog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftBlog.h; sourceTree = "<group>"; };
 		6FA4F8891C69B9C30047624A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -61,6 +64,7 @@
 		6FA4F8AF1C69D5DB0047624A /* RESTController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTController.swift; sourceTree = "<group>"; };
 		6FA4F8B01C69D5DB0047624A /* Post.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		6FA4F8B11C69D5DB0047624A /* PostController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostController.swift; sourceTree = "<group>"; };
+		6FCECE631C76E1D8009A5B3E /* PerfectExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerfectExtensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +120,8 @@
 				6FA4F8AD1C69D5C90047624A /* DatabaseManager.swift */,
 				6FA4F8A21C69BBF50047624A /* PerfectHandlers.swift */,
 				6FA4F8A41C69CEEA0047624A /* MongoExtensions.swift */,
+				6FCECE631C76E1D8009A5B3E /* PerfectExtensions.swift */,
+				6F50F63E1C7324A2008186C7 /* DBManagedObject.swift */,
 			);
 			path = SwiftBlog;
 			sourceTree = "<group>";
@@ -240,7 +246,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				6FA4F8A51C69CEEA0047624A /* MongoExtensions.swift in Sources */,
+				6F50F63F1C7324A2008186C7 /* DBManagedObject.swift in Sources */,
 				6FA4F8A31C69BBF50047624A /* PerfectHandlers.swift in Sources */,
+				6FCECE641C76E1D8009A5B3E /* PerfectExtensions.swift in Sources */,
 				6FA4F8AE1C69D5C90047624A /* DatabaseManager.swift in Sources */,
 				6FA4F8B21C69D5DB0047624A /* RESTController.swift in Sources */,
 				6FA4F8B31C69D5DB0047624A /* Post.swift in Sources */,

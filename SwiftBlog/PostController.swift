@@ -1,21 +1,20 @@
 //
 //  PostController.swift
-//  Tap Tracker
+//  SwiftBlog
 //
-//  Created by Benjamin Johnson on 5/02/2016.
+//  Created by Benjamin Johnson on 9/02/2016.
+//  Copyright © 2016 Benjamin Johnson. All rights reserved.
 //
-//
+
 
 import PerfectLib
 import MongoDB
-
-
 
 class PostController: RESTController {
     
     let modelName = "post"
     
-    func list(context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws -> MustacheEvaluationContext.MapType {
+    func list(request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
         var values = MustacheEvaluationContext.MapType()
         
@@ -51,7 +50,7 @@ class PostController: RESTController {
         return post
     }
 
-    func show(identifier: Int, context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws -> MustacheEvaluationContext.MapType {
+    func show(identifier: Int, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
         // Query Post
         // Get Posts
@@ -70,14 +69,14 @@ class PostController: RESTController {
         // Handle new post request
         if let title = request.param("title"), body = request.param("body"), author = request.param("author"), existingPost = getPostWithIdentifier(identifier) {
             
-            // Valid Post
+            // Update post properties
             existingPost.title = title
             existingPost.body = body
             existingPost.author = author
             
             // Save Post
             do {
-                DatabaseManager().database.getCollection(Post).insert(try existingPost.document())
+                DatabaseManager().database.getCollection(Post).save(try existingPost.document())
                 response.redirectTo("/\(modelName)s/\(identifier)")
             } catch {
                 print(error)
@@ -85,10 +84,9 @@ class PostController: RESTController {
         }
         
         response.requestCompletedCallback()
-        
     }
     
-    func edit(identifier: Int, context: MustacheEvaluationContext, collector: MustacheEvaluationOutputCollector) throws -> MustacheEvaluationContext.MapType {
+    func edit(identifier: Int, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
         guard let post = getPostWithIdentifier(identifier) else {
             return MustacheEvaluationContext.MapType()
@@ -118,7 +116,6 @@ class PostController: RESTController {
         }
         
         response.requestCompletedCallback()
-
     }
     
     func delete(identifier: Int, request: WebRequest, response: WebResponse) {

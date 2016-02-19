@@ -10,16 +10,28 @@ import PerfectLib
 import MongoDB
 
 extension Routing {
-    class func addRoutesForRESTController(controller: RESTController) {
+    class func addRoutesForRESTController(controller: RESTController, supportJSON: Bool = true) {
         
-        // Respond to specific post requests
+        // Show
         Routing.Routes["GET", "/\(controller.modelName)s/{id}"] = { _ in return controller }
+        
+        // Edit
         Routing.Routes["GET", "/\(controller.modelName)s/{id}/{action}"] = { _ in return controller }
         
+        // Update
         Routing.Routes["POST", "/\(controller.modelName)s/{id}"] = { _ in return controller }
+        
+        // Delete
         Routing.Routes["DELETE", "/\(controller.modelName)s/{id}"] = { _ in return controller }
         
+        // Index
         Routing.Routes["GET", "/\(controller.modelName)s"] = { _ in return controller }
+        if supportJSON {
+            Routing.Routes["GET", "/\(controller.modelName)s.json"] = { _ in return controller }
+            Routing.Routes["GET", "/\(controller.modelName)s/{id}"] = { _ in return controller }
+
+        }
+
         Routing.Routes["GET", "/\(controller.modelName)s/new"] = { _ in return controller }
         Routing.Routes["POST", "/\(controller.modelName)s"] = { _ in return controller }
     }
