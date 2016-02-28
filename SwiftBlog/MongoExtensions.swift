@@ -15,6 +15,14 @@ extension MongoDatabase {
         
         return self.getCollection(type.collectionName)
     }
+    
+    func insert(object: DBManagedObject) throws {
+        
+        let objectCollection = self.getCollection(object.dynamicType)
+        objectCollection.insert(try object.document())
+        
+        
+    }
 }
 
 extension BSON {
@@ -39,6 +47,20 @@ extension MongoCollection {
     public func find(identifier: Int) -> BSON? {
         
         let cursor = find(BSON(), fields: nil, flags: MongoQueryFlag(rawValue: 0), skip: identifier, limit: 1, batchSize: 0)
+        let bson = cursor?.next()
+        cursor?.close()
+        
+        return bson
+    }
+    
+    public func get(objectID: String) -> BSON? {
+        let identifierDictionary = ["$oid": objectID] as Dictionary<JSONKey, JSONValue>
+        
+        let query: [String: JSONValue] = ["_id": identifierDictionary]
+        let jsonEncode = try! JSONEncoder().encode(query)
+        
+        let cursor = find(try! BSON(json: jsonEncode))
+        
         let bson = cursor?.next()
         cursor?.close()
         

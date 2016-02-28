@@ -18,6 +18,8 @@ final class Post: Object {
     
     var author: String
     
+    var tags: [String] = []
+    
     init(title: String, body: String, author: String) {
         
         self.title = title
@@ -47,9 +49,13 @@ extension Post: DBManagedObject {
         
         let author = dictionary["author"] as! String
         
+        let tags = dictionary["tags"] as? [String] ?? []
+        
         let id = (dictionary["_id"] as? JSONDictionaryType)?["$oid"] as? String
         
         self.init(title: title, body: body, author: author)
+        
+        self.tags = tags
         
         self._objectID = id
     }

@@ -18,7 +18,9 @@ This is the mustache template file for the tap tracker example.
 <ul class="menu">
 <li class="menu-text">Blog</li>
 <li><a href="/">Home</a></li>
-
+{{#user}}
+<li><a href="/logout">User: {{name}}</a></li>
+{{/user}}
 </ul>
 </div>
 </div>

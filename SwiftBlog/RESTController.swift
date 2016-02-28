@@ -27,9 +27,15 @@ protocol RESTController: RequestHandler {
     
     func edit(identifier: Int, request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
     
+    func beforeAction(request: WebRequest, response: WebResponse) -> MustacheEvaluationContext.MapType
+    
 }
 
 extension RESTController {
+    
+    func beforeAction(request: WebRequest, response: WebResponse) -> MustacheEvaluationContext.MapType {
+        return [:]
+    }
     
     func parseMustacheFromURL(url: String, withValues values: [String: Any]) -> String {
         

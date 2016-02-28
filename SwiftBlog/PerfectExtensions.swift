@@ -44,6 +44,20 @@ extension Routing {
     }
 }
 
+extension RequestHandler {
+    func parseMustacheFromURL(url: String, withValues values: [String: Any]) -> String {
+        
+        let template = MustacheTemplate.FromURL(url)!
+        let context =  MustacheEvaluationContext(map: values)
+        
+        let collector = MustacheEvaluationOutputCollector()
+        template.evaluate(context, collector: collector)
+        
+        return collector.asString()
+    }
+}
+
+
 extension WebRequest {
     var format: String {
         return requestURI().componentsSeparatedByString(".").last ?? "html"

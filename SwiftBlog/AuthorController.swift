@@ -1,5 +1,5 @@
 //
-//  PostController.swift
+//  AuthorController.swift
 //  SwiftBlog
 //
 //  Created by Benjamin Johnson on 9/02/2016.
@@ -10,48 +10,28 @@
 import PerfectLib
 import MongoDB
 
-class PostController: RESTController {
+class AuthorController: RESTController {
     
-    let modelName = "post"
-    
-    func beforeAction(request: WebRequest, response: WebResponse) -> MustacheEvaluationContext.MapType? {
-        
-        // Authenticate User
-        
-        // Obtain Session
-        let currentSession = response.getSession("user")
-        print(currentSession["user_id"])
-        
-        guard let currentUserID = currentSession["user_id"] as? String, let user = Author(userID: currentUserID) else {
-            response.redirectTo("/login")
-            return  nil
-        }
-        
-        return ["user":["name": user.name]]
-        
-    }
+    let modelName = "author"
     
     func list(request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
-        
         var values = MustacheEvaluationContext.MapType()
         
         // Get Posts
         let db = DatabaseManager().database
-        let postsBSON = db.getCollection(Post).find()
+        let postsBSON = db.getCollection(Author).find()
         var posts: [[String: Any]] = []
         
         while let postBSON = postsBSON?.next() {
-            let post = Post(bson: postBSON)
+            let post = Author(bson: postBSON)
             posts.append(post.keyValues())
         }
         
         postsBSON?.close()
-        let reversedPosts = Array(posts.reverse())
-        
-        values["post"] = reversedPosts
+        values["author"] = posts
         
         return values
- 
+        
     }
     
     func getPostWithIdentifier(identifier: Int) -> Post? {
@@ -66,7 +46,7 @@ class PostController: RESTController {
         let post = Post(bson: postBSON)
         return post
     }
-
+    
     func show(identifier: Int, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
         // Query Post
@@ -74,7 +54,7 @@ class PostController: RESTController {
         guard let post = getPostWithIdentifier(identifier) else {
             return MustacheEvaluationContext.MapType()
         }
-
+        
         let values: [String:Any] = ["post": post.keyValues()]
         
         return values
@@ -105,16 +85,11 @@ class PostController: RESTController {
     
     func edit(identifier: Int, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
-        let beforeValues = beforeAction(request, response: response)
-        guard var values = beforeValues else {
-            return MustacheEvaluationContext.MapType()
-        }
-  
         guard let post = getPostWithIdentifier(identifier) else {
             return MustacheEvaluationContext.MapType()
         }
         
-        values["post"] = post.keyValues()
+        let values: [String:Any] = ["post": post.keyValues()]
         
         return values
     }
@@ -123,32 +98,29 @@ class PostController: RESTController {
     func new(request: WebRequest, response: WebResponse) {
         
         // Handle new post request
-        if let title = request.param("title"), body = request.param("body"), author = request.param("author") {
+        if let email = request.param("email"),
+            name = request.param("name"),
+            password = request.param("password"),
+            password2 = request.param("password2")
+        {
             
             // Valid Post
-            let newPost = Post(title: title, body: body, author: author)
-            
-            // Save Post
-            do {
-                DatabaseManager().database.getCollection(Post).insert(try newPost.document())
-                response.redirectTo("/")
-            } catch {
-                
+            guard password == password2 else {
+                response.setStatus(500, message: "The passwords did not match.")
+                return
             }
+            
+            guard let author = Author.create(name, email: email, password: password) else {
+                response.setStatus(500, message: "The user was not able to be created.")
+                return
+
+            }
+            
+            response.redirectTo("/")
+          
         }
         
         response.requestCompletedCallback()
-    }
-    
-    func create(request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
-    {
-        let beforeValues = beforeAction(request, response: response)
-        guard var values = beforeValues else {
-            return MustacheEvaluationContext.MapType()
-        }
-        print(values)
-        return values
-        
     }
     
     func delete(identifier: Int, request: WebRequest, response: WebResponse) {
@@ -166,7 +138,7 @@ class PostController: RESTController {
             } catch {
                 print(error)
             }
-        
+            
             
         }
         response.requestCompletedCallback()

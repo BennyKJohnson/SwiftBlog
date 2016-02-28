@@ -14,6 +14,8 @@ import MongoDB
 // This is the function which all Perfect Server modules must expose.
 // The system will load the module and call this function.
 // In here, register any handlers or perform any one-time tasks.
+let AUTH_REALM = "SwiftBlog"
+
 public func PerfectServerModuleInit() {
     
     // Register our handler class with the PageHandlerRegistry.
@@ -23,7 +25,11 @@ public func PerfectServerModuleInit() {
     Routing.Handler.registerGlobally()
     
     Routing.addRoutesForRESTController(PostController())
+    Routing.addRoutesForRESTController(AuthorController())
     Routing.Routes["GET", "/"] = { _ in return PostController() }
+    
+    Routing.Routes["/login"] = { _ in LoginHandler() }
+    Routing.Routes["/logout"] = { _ in LogoutHandler() }
 
     print("\(Routing.Routes.description)")
     
