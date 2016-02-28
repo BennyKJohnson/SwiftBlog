@@ -1,5 +1,6 @@
 # Swift Blog
 A simple blog web app written in swift with the [Perfect framework](https://github.com/PerfectlySoft/Perfect)
+![Main page](./Screenshots/Hero.png)
 
 ## Getting Started
 1. Create a new directory called ‘SwiftBlog’ or any name you prefer
