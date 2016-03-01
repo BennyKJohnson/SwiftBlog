@@ -1,0 +1,20 @@
+{{% handler:TTHandler}}{{!
+
+	This is the mustache template file for the tap tracker example.
+	
+}}
+{
+"posts": [
+{{#post}}
+	{
+		"title": "{{title}}",
+		"author": "{{author}}",
+        "body": "{{body}}"
+	}
+{{/post}}
+]
+}
+
+
+
+
