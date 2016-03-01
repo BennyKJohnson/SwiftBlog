@@ -21,9 +21,11 @@ protocol DBManagedObject {
     
 }
 
+typealias ObjectID = Dictionary<JSONKey, JSONValue>?
+
 extension DBManagedObject {
     
-    var identifierDictionary: Dictionary<JSONKey, JSONValue>? {
+    var identifierDictionary: ObjectID? {
         
         if let object = self as? Object, objectID = object._objectID {
             return ["$oid": objectID] as Dictionary<JSONKey, JSONValue>
@@ -41,7 +43,6 @@ extension DBManagedObject {
             
             let identifierDict = ["$oid": objectID] as Dictionary<JSONKey, JSONValue>
             documentData["_id"] = identifierDict
-            
         }
         
         let json = try JSONEncoder().encode(documentData)

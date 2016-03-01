@@ -19,7 +19,6 @@ class DatabaseManager {
         return mongo.getDatabase(DatabaseManager.datebaseName)
     }
     
-    
     func prepareDatabase() {
         
         // Create our SQLite tracking database.
@@ -45,19 +44,7 @@ class DatabaseManager {
        // populateBlogPosts()
     }
     
-    func populateBlogPosts() {
-        
-        let db = mongo.getDatabase(DatabaseManager.datebaseName)
-        let posts = db.getCollection(Post.collectionName)
-        
-        let post1 = Post(title: "Hello World", body: "Welcome to my new blog",author: "Benjamin Johnson")
-        let post2 = Post(title: "Blog Post 2", body: "Had a great day today", author: "Benjamin Johnson")
-        
-        posts.insert(try! post1.document())
-        posts.insert(try! post2.document())
-        
-    }
-}
+   }
 
 class Object {
     var _objectID: String? = nil

@@ -14,17 +14,25 @@ class PostController: RESTController {
     
     let modelName = "post"
     
-    func beforeAction(request: WebRequest, response: WebResponse) -> MustacheEvaluationContext.MapType? {
-        
-        // Authenticate User
+    func getCurrentUser(request: WebRequest, response: WebResponse) -> Author? {
         
         // Obtain Session
         let currentSession = response.getSession("user")
         print(currentSession["user_id"])
         
         guard let currentUserID = currentSession["user_id"] as? String, let user = Author(userID: currentUserID) else {
-            response.redirectTo("/login")
             return  nil
+        }
+
+        return user
+    }
+    
+    func beforeAction(request: WebRequest, response: WebResponse) -> MustacheEvaluationContext.MapType? {
+        
+        // Authenticate User
+        guard let user = getCurrentUser(request, response: response) else {
+            response.redirectTo("/login")
+            return nil
         }
         
         return ["user":["name": user.name]]
@@ -82,14 +90,13 @@ class PostController: RESTController {
     }
     
     func update(identifier: Int, request: WebRequest, response: WebResponse) {
-        
+      
         // Handle new post request
-        if let title = request.param("title"), body = request.param("body"), author = request.param("author"), existingPost = getPostWithIdentifier(identifier) {
+        if let title = request.param("title"), body = request.param("body"), existingPost = getPostWithIdentifier(identifier), currentAuthor = getCurrentUser(request, response: response) where currentAuthor.email == existingPost.author.email {
             
             // Update post properties
             existingPost.title = title
             existingPost.body = body
-            existingPost.author = author
             
             // Save Post
             do {
@@ -123,7 +130,7 @@ class PostController: RESTController {
     func new(request: WebRequest, response: WebResponse) {
         
         // Handle new post request
-        if let title = request.param("title"), body = request.param("body"), author = request.param("author") {
+        if let author = getCurrentUser(request, response: response), title = request.param("title"), body = request.param("body") {
             
             // Valid Post
             let newPost = Post(title: title, body: body, author: author)
@@ -146,7 +153,6 @@ class PostController: RESTController {
         guard var values = beforeValues else {
             return MustacheEvaluationContext.MapType()
         }
-        print(values)
         return values
         
     }

@@ -27,9 +27,13 @@ extension Author: DBManagedObject {
         
         let authKey = dictionary["authKey"] as! String
         
+        let pictureURL = dictionary["pictureURL"] as? String ?? ""
+        
         let id = (dictionary["_id"] as? JSONDictionaryType)?["$oid"] as? String
         
         self.init(email: email, name: name, authKey: authKey)
+        
+        self.pictureURL = pictureURL
         
         self._objectID = id
     }
@@ -63,16 +67,17 @@ extension Author: DBManagedObject {
         self.init(bson: authorBSON)
         
     }
+    
 }
 
 extension Author {
     
-    static func create(name: String, email: String, password: String) -> Author? {
+    static func create(name: String, email: String, password: String, pictureURL: String = "") -> Author? {
         
         do {
-            DatabaseManager().database
             let authKey = encodeRawPassword(email, password: password)
             let author = Author(email: email, name: name, authKey: authKey)
+            author.pictureURL = pictureURL
             
             try DatabaseManager().database.insert(author)
             

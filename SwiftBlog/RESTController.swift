@@ -70,7 +70,7 @@ extension RESTController {
                 if let _ = request.urlVariables["action"]{
                     
                     // Call Show
-                    let templateURL = request.documentRoot + "//\(modelName)s/edit.mustache"
+                    let templateURL = request.documentRoot + "/templates/\(modelName)s/edit.mustache"
                  
                     var values = try! edit(identifier, request: request, response: response)
                     values["url"] = "/\(modelName)s/\(identifier)"
@@ -82,9 +82,9 @@ extension RESTController {
                     
                     let templateURL: String
                     if request.format == "json" {
-                        templateURL = request.documentRoot + "//\(modelName)s/show.json.mustache"
+                        templateURL = request.documentRoot + "/templates/\(modelName)s/show.json.mustache"
                     } else {
-                        templateURL = request.documentRoot + "//\(modelName)s/show.mustache"
+                        templateURL = request.documentRoot + "/templates/\(modelName)s/show.mustache"
                     }
 
                     let values = try! show(identifier, request: request, response: response)
@@ -96,7 +96,7 @@ extension RESTController {
             
         } else if let action = request.requestURI().componentsSeparatedByString("/").last where action == "new" {
             
-                let templateURL = request.documentRoot + "//\(modelName)s/new.mustache"
+                let templateURL = request.documentRoot + "/templates/\(modelName)s/new.mustache"
     
                 // Call Show
                 let values = try! create(request, response: response)

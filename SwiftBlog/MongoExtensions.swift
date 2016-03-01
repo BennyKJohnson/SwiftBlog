@@ -17,11 +17,8 @@ extension MongoDatabase {
     }
     
     func insert(object: DBManagedObject) throws {
-        
         let objectCollection = self.getCollection(object.dynamicType)
         objectCollection.insert(try object.document())
-        
-        
     }
 }
 

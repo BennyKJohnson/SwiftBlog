@@ -64,12 +64,11 @@ class AuthorController: RESTController {
     func update(identifier: Int, request: WebRequest, response: WebResponse) {
         
         // Handle new post request
-        if let title = request.param("title"), body = request.param("body"), author = request.param("author"), existingPost = getPostWithIdentifier(identifier) {
+        if let title = request.param("title"), body = request.param("body"), existingPost = getPostWithIdentifier(identifier) {
             
             // Update post properties
             existingPost.title = title
             existingPost.body = body
-            existingPost.author = author
             
             // Save Post
             do {
@@ -109,12 +108,36 @@ class AuthorController: RESTController {
                 response.setStatus(500, message: "The passwords did not match.")
                 return
             }
+            var pictureURL: String = ""
+            // Get Profile Picture
+            if let uploadedFile = request.fileUploads.first {
+                
+                let fileName = uploadedFile.fileName
+                print("Profile Pic uploaded: \(fileName)")
+                
+                // Save profile picture to disk
+                if let file = uploadedFile.file {
+                    // Copy file 
+                    do {
+                        let saveLocation = request.documentRoot + "/resources/pictures/" + uploadedFile.fileName
+                        pictureURL = uploadedFile.fileName
+                        print(saveLocation)
+                        
+                        try file.copyTo(saveLocation, overWrite: true)
+                    } catch {
+                        print(error)
+                    }
+                }
+                
+            }
             
-            guard let author = Author.create(name, email: email, password: password) else {
+            guard let author = Author.create(name, email: email, password: password, pictureURL: pictureURL) else {
                 response.setStatus(500, message: "The user was not able to be created.")
                 return
 
             }
+            
+            
             
             response.redirectTo("/")
           

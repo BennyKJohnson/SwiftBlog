@@ -14,7 +14,13 @@ final class Author: Object {
     
     var twitterHandle: String = ""
     
+    var bio: String = ""
+    
+    var pictureURL: String = ""
+    
     var authKey: String
+    
+   // var posts: [Post] = []
     
     init(email: String, name: String, authKey: String) {
         
