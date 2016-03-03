@@ -26,6 +26,7 @@ public func PerfectServerModuleInit() {
     
     Routing.addRoutesForRESTController(PostController())
     Routing.addRoutesForRESTController(AuthorController())
+
     Routing.Routes["GET", "/"] = { _ in return PostController() }
     
     Routing.Routes["/login"] = { _ in LoginHandler() }

@@ -29,6 +29,15 @@ final class Post: Object {
         self.author = author
         
     }
+    
+    var urlTitle: String {
+        
+        var urlTitle = title.lowercaseString
+        urlTitle = urlTitle.stringByReplacingString(" ", withString: "-")
+        urlTitle = urlTitle.stringByReplacingString("'", withString: "-")
+
+        return urlTitle
+    }
 }
 
 extension Post: DBManagedObject {

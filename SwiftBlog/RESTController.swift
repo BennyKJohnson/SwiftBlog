@@ -13,7 +13,7 @@ protocol RESTController: RequestHandler {
     
     var modelName: String { get }
     
-    func show(identifier: Int, request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
+    func show(identifier: String, request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
     
     func list(request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
     
@@ -56,19 +56,26 @@ extension RESTController {
  
         
         // Show handle
-        if let id = request.urlVariables["id"],identifier = Int(id) {
+        
+        // Check identifier here
+        
+        
+        if let identifier = request.urlVariables["id"] {
             
             switch(requestMethod) {
             case .POST, .PATCH, .PUT:
-                update(identifier, request: request, response: response)
+                fatalError()
+                //update(identifier, request: request, response: response)
                 
             case .DELETE:
-                delete(identifier, request: request, response: response)
+                fatalError()
+                //delete(identifier, request: request, response: response)
                 
             case .GET:
                 
                 if let _ = request.urlVariables["action"]{
                     
+                    /*
                     // Call Show
                     let templateURL = request.documentRoot + "/templates/\(modelName)s/edit.mustache"
                  
@@ -77,6 +84,7 @@ extension RESTController {
                     
                     response.appendBodyString(parseMustacheFromURL(templateURL, withValues: values))
                     response.requestCompletedCallback()
+*/
                     
                 } else {
                     

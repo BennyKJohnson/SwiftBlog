@@ -47,11 +47,15 @@ class AuthorController: RESTController {
         return post
     }
     
-    func show(identifier: Int, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
+    func show(identifier: String, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
         // Query Post
+        guard let id = Int(identifier) else {
+            return [:]
+        }
+        
         // Get Posts
-        guard let post = getPostWithIdentifier(identifier) else {
+        guard let post = getPostWithIdentifier(id) else {
             return MustacheEvaluationContext.MapType()
         }
         
