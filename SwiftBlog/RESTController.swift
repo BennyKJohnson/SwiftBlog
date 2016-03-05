@@ -48,17 +48,28 @@ extension RESTController {
         return collector.asString()
     }
     
+    func loadPageWithTemplate(request: WebRequest, url:String, withValues values: [String: Any]) -> String {
+        
+        let templateURL = request.documentRoot + "/templates/template.mustache"
+        let content = parseMustacheFromURL(url, withValues: values)
+        var finalValues = values
+        finalValues["content"] = content
+       // finalValues["user"] = ["name": "Test"] as [String: Any]
+       // let templateContent = ["content": content] as [String: Any]
+        
+        return parseMustacheFromURL(templateURL, withValues: finalValues)
+    }
+    
     func handleRequest(request: WebRequest, response: WebResponse) {
         
         print(request.requestURI())
         
         let requestMethod = RequestMethod(rawValue: request.requestMethod())!
- 
-        
+
         // Show handle
-        
+
         // Check identifier here
-        
+
         
         if let identifier = request.urlVariables["id"] {
             
@@ -73,6 +84,29 @@ extension RESTController {
                 
             case .GET:
                 
+                switch(identifier) {
+                case "new":
+                    
+                    
+                    let templateURL = request.documentRoot + "/templates/\(modelName)s/new.mustache"
+                    
+                    // Call Show
+                    let values = try! create(request, response: response)
+                    
+                    response.appendBodyString(loadPageWithTemplate(request, url: templateURL, withValues: values))
+                    response.requestCompletedCallback()
+                    
+                default:
+      
+                    let templateURL = request.documentRoot + "/templates/\(modelName)s/show.mustache"
+                    let values = try! show(identifier, request: request, response: response)
+                    
+                    response.appendBodyString(loadPageWithTemplate(request, url: templateURL, withValues: values))
+                    response.requestCompletedCallback()
+                    
+                }
+                
+                
                 if let _ = request.urlVariables["action"]{
                     
                     /*
@@ -86,31 +120,8 @@ extension RESTController {
                     response.requestCompletedCallback()
 */
                     
-                } else {
-                    
-                    let templateURL: String
-                    if request.format == "json" {
-                        templateURL = request.documentRoot + "/templates/\(modelName)s/show.json.mustache"
-                    } else {
-                        templateURL = request.documentRoot + "/templates/\(modelName)s/show.mustache"
-                    }
-
-                    let values = try! show(identifier, request: request, response: response)
-                    
-                    response.appendBodyString(parseMustacheFromURL(templateURL, withValues: values))
-                    response.requestCompletedCallback()
-                }
+                } 
             }
-            
-        } else if let action = request.requestURI().componentsSeparatedByString("/").last where action == "new" {
-            
-                let templateURL = request.documentRoot + "/templates/\(modelName)s/new.mustache"
-    
-                // Call Show
-                let values = try! create(request, response: response)
-     
-                response.appendBodyString(parseMustacheFromURL(templateURL, withValues: values))
-                response.requestCompletedCallback()
             
         } else {
             
@@ -125,11 +136,11 @@ extension RESTController {
                 if request.format == "json" {
                     templateURL = request.documentRoot + "//\(modelName)s/index.json.mustache"
                 } else {
-                    templateURL = request.documentRoot + "//\(modelName)s/index.mustache"
+                    templateURL = request.documentRoot + "/templates/\(modelName)s/index.mustache"
                 }
                 
                 let values = try! list(request, response: response)
-                response.appendBodyString(parseMustacheFromURL(templateURL, withValues: values))
+                response.appendBodyString(loadPageWithTemplate(request, url: templateURL, withValues: values))
                 response.requestCompletedCallback()
                 
             }

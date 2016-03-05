@@ -27,6 +27,16 @@ class PostController: RESTController {
         return user
     }
     
+    func getUserInformation(request: WebRequest, response: WebResponse) -> [String: Any] {
+        
+        if let user = getCurrentUser(request, response: response) {
+            return ["user":["name": user.name] as [String: Any]] 
+        } else {
+            return [:]
+        }
+        
+    }
+    
     func beforeAction(request: WebRequest, response: WebResponse) -> MustacheEvaluationContext.MapType? {
         
         // Authenticate User
@@ -35,13 +45,12 @@ class PostController: RESTController {
             return nil
         }
         
-        return ["user":["name": user.name]]
-        
+        return ["user":["name": user.name] as [String: Any]]
     }
     
     func list(request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
-        var values = MustacheEvaluationContext.MapType()
+        var values = getUserInformation(request, response: response)
         
         // Get Posts
         let db = DatabaseManager().database
@@ -59,7 +68,6 @@ class PostController: RESTController {
         values["post"] = reversedPosts
         
         return values
- 
     }
     
     func getPostWithIdentifier(identifier: Int) -> Post? {
@@ -76,18 +84,22 @@ class PostController: RESTController {
     }
 
     func show(identifier: String, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
-        
-        guard let id = Int(identifier) else {
-            return [:]
+        let post: Post?
+        var values: [String:Any] = beforeAction(request, response: response)
+       
+        if let id = Int(identifier)  {
+            post = getPostWithIdentifier(id)
+        } else {
+            post = Post(urlTitle: identifier)
         }
         
         // Query Post
         // Get Posts
-        guard let post = getPostWithIdentifier(id) else {
+        guard let requestedPost = post else {
             return MustacheEvaluationContext.MapType()
         }
 
-        let values: [String:Any] = ["post": post.keyValues()]
+        values["post"] = requestedPost.keyValues()
         
         return values
         

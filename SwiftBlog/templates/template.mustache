@@ -8,20 +8,39 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Benny's Blog</title>
-<link rel="stylesheet" href="http://dhbhdrzi4tiry.cloudfront.net/cdn/sites/foundation.min.css">
+<title>Swift Blog</title>
+<link rel="stylesheet" href="/stylesheets/foundation.min.css">
 <link rel="stylesheet" href="/stylesheets/main.css">
 </head>
 <body>
-
 <div class="top-bar">
 <div class="top-bar-left">
 <ul class="menu">
 <li class="menu-text">Blog</li>
-<li><a href="posts/new">New Post</a></li>
-
+{{#user}}
+<li><a href="/posts/new">New Post</a></li>
+{{/user}}
 </ul>
 </div>
+
+{{#user}}
+<div class="top-bar-right">
+<ul class="dropdown menu" data-dropdown-menu>
+<li>
+<a>{{name}}</a>
+<ul class="menu">
+<li><a href="/authors/0/edit">Edit Profile</a></li>
+<li><a href="/logout">Log out</a></li>
+
+</ul>
+</li>
+
+</ul>
+
+
+</div>
+{{/user}}
+
 </div>
 
 {{{content}}}

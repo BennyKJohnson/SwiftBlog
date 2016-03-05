@@ -141,10 +141,7 @@ class AuthorController: RESTController {
 
             }
             
-            
-            
             response.redirectTo("/")
-          
         }
         
         response.requestCompletedCallback()

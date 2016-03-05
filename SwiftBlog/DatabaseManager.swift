@@ -21,10 +21,6 @@ class DatabaseManager {
     
     func prepareDatabase() {
         
-        // Create our SQLite tracking database.
-        
-      //  let mongo = MongoClient(uri: "mongodb://localhost")
-        
         // Check status
         let status = mongo.serverStatus()
         
