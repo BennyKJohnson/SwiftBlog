@@ -25,13 +25,15 @@ extension Author: DBManagedObject {
         
         let name = dictionary["name"] as! String
         
+        let username = dictionary["username"] as! String
+        
         let authKey = dictionary["authKey"] as! String
         
         let pictureURL = dictionary["pictureURL"] as? String ?? ""
         
         let id = (dictionary["_id"] as? JSONDictionaryType)?["$oid"] as? String
         
-        self.init(email: email, name: name, authKey: authKey)
+        self.init(email: email, name: name,username: username, authKey: authKey)
         
         self.pictureURL = pictureURL
         
@@ -43,7 +45,7 @@ extension Author: DBManagedObject {
         
         // Find Author with email
         
-        let results = database.getCollection(Author).find(["email": email])
+        let results = database.getCollection(Author).find(["username": email])
         
         defer {
             results?.close()
@@ -54,6 +56,24 @@ extension Author: DBManagedObject {
         }
         
        self.init(bson: authorBSON)
+    }
+    
+    convenience init?(username: String) {
+        let database = DatabaseManager().database
+        
+        // Find Author with email
+        print(username)
+        let results = database.getCollection(Author).find(["username": username])
+        
+        defer {
+            results?.close()
+        }
+        
+        guard let authorBSON = results?.next() else {
+            return nil
+        }
+        
+        self.init(bson: authorBSON)
     }
     
     convenience init?(userID: String) {
@@ -72,11 +92,11 @@ extension Author: DBManagedObject {
 
 extension Author {
     
-    static func create(name: String, email: String, password: String, pictureURL: String = "") -> Author? {
+    static func create(name: String, email: String, password: String, username: String, pictureURL: String = "") -> Author? {
         
         do {
             let authKey = encodeRawPassword(email, password: password)
-            let author = Author(email: email, name: name, authKey: authKey)
+            let author = Author(email: email, name: name, username: username, authKey: authKey)
             author.pictureURL = pictureURL
             
             try DatabaseManager().database.insert(author)

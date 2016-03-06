@@ -10,7 +10,7 @@
 import MongoDB
 import PerfectLib
 
-final class Post: Object {
+final class Article: Object {
     
     var title: String
     

@@ -1,5 +1,5 @@
 //
-//  Post-Server.swift
+//  Article-Server.swift
 //  SwiftBlog
 //
 //  Created by Ben Johnson on 3/03/2016.
@@ -9,9 +9,9 @@
 import PerfectLib
 import MongoDB
 
-extension Post: DBManagedObject {
+extension Article: DBManagedObject {
     
-    static var collectionName = "post"
+    static var collectionName = "article"
     
     convenience init?(urlTitle: String) {
         
@@ -19,7 +19,7 @@ extension Post: DBManagedObject {
         
         // Find Author with email
         
-        let results = database.getCollection(Post).find(["urlTitle": urlTitle])
+        let results = database.getCollection(Article).find(["urlTitle": urlTitle])
         
         defer {
             results?.close()

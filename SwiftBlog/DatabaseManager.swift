@@ -13,10 +13,10 @@ class DatabaseManager {
 
     let mongo =  MongoClient(uri: "mongodb://localhost")
     
-    static let datebaseName: String = "mydb"
+    static let databaseName: String = "swiftblog"
 
     var database: MongoDatabase {
-        return mongo.getDatabase(DatabaseManager.datebaseName)
+        return mongo.getDatabase(DatabaseManager.databaseName)
     }
     
     func prepareDatabase() {

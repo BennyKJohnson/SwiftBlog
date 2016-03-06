@@ -1,0 +1,40 @@
+{{% handler:TTHandler}}{{!
+
+	This is the mustache template file for the tap tracker example.
+	
+}}
+
+
+<div class="callout large primary">
+<div class="row column text-center">
+<h1>Blog</h1>
+<h2 class="subheader">A collection of random thoughts</h2>
+</div>
+</div>
+
+<div class="row medium-8 large-7 columns">
+
+<div class="blog-post">
+
+<div class="author">
+{{#author}}
+<div class="photo"> <img src="{{pictureURL}}" /></div>
+<h3>{{name}}</h3>
+<p>{{bio}}</p>
+{{/author}}
+
+</div>
+</div>
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+

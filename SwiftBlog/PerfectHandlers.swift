@@ -24,10 +24,10 @@ public func PerfectServerModuleInit() {
     // Do routing
     Routing.Handler.registerGlobally()
     
-    Routing.addRoutesForRESTController(PostController())
+    Routing.addRoutesForRESTController(ArticleController())
     Routing.addRoutesForRESTController(AuthorController())
 
-    Routing.Routes["GET", "/"] = { _ in return PostController() }
+    Routing.Routes["GET", "/"] = { _ in return ArticleController() }
     
     Routing.Routes["/login"] = { _ in LoginHandler() }
     Routing.Routes["/logout"] = { _ in LogoutHandler() }

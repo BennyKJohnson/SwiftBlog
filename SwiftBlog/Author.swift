@@ -14,6 +14,8 @@ final class Author: Object {
     
     var twitterHandle: String = ""
     
+    var username: String
+    
     var bio: String = ""
     
     var pictureURL: String = ""
@@ -22,11 +24,13 @@ final class Author: Object {
     
    // var posts: [Post] = []
     
-    init(email: String, name: String, authKey: String) {
+    init(email: String, name: String, username: String, authKey: String) {
         
         self.email = email
         
         self.name = name
+        
+        self.username = username.lowercaseString
         
         self.authKey = authKey
         

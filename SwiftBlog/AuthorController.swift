@@ -17,7 +17,7 @@ class AuthorController: RESTController {
     func list(request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         var values = MustacheEvaluationContext.MapType()
         
-        // Get Posts
+        // Get Articles
         let db = DatabaseManager().database
         let postsBSON = db.getCollection(Author).find()
         var posts: [[String: Any]] = []
@@ -34,65 +34,71 @@ class AuthorController: RESTController {
         
     }
     
-    func getPostWithIdentifier(identifier: Int) -> Post? {
+    func getUserWithIdentifier(identifier: Int) -> Author? {
         let db = DatabaseManager().database
-        let postsBSON = db.getCollection(Post).find(BSON(), fields: nil, flags: MongoQueryFlag(rawValue: 0), skip: identifier, limit: 1, batchSize: 0)
+        let postsBSON = db.getCollection(Author).find(BSON(), fields: nil, flags: MongoQueryFlag(rawValue: 0), skip: identifier, limit: 1, batchSize: 0)
         guard let postBSON = postsBSON?.next() else {
-            // response.setStatus(404, message: "Post not found")
+            // response.setStatus(404, message: "Article not found")
             // response.requestCompletedCallback()
             return nil
         }
         
-        let post = Post(bson: postBSON)
+        let post = Author(bson: postBSON)
         return post
     }
     
     func show(identifier: String, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
-        // Query Post
-        guard let id = Int(identifier) else {
-            return [:]
+        // Query Article
+        let author: Author?
+        
+        if let id = Int(identifier)  {
+            author = getUserWithIdentifier(id)
+        } else {
+            author = Author(username: identifier)
         }
         
-        // Get Posts
-        guard let post = getPostWithIdentifier(id) else {
+        // Query Article
+        // Get Articles
+        guard let requestedAuthor = author else {
             return MustacheEvaluationContext.MapType()
         }
         
-        let values: [String:Any] = ["post": post.keyValues()]
+        
+        let values: [String:Any] = ["author": requestedAuthor.keyValues()]
         
         return values
         
     }
     
     func update(identifier: Int, request: WebRequest, response: WebResponse) {
-        
+        /*
         // Handle new post request
-        if let title = request.param("title"), body = request.param("body"), existingPost = getPostWithIdentifier(identifier) {
+        if let title = request.param("title"), body = request.param("body"), existingArticle = getUserWithIdentifier(identifier) {
             
             // Update post properties
-            existingPost.title = title
-            existingPost.body = body
+            existingArticle.title = title
+            existingArticle.body = body
             
-            // Save Post
+            // Save Article
             do {
-                DatabaseManager().database.getCollection(Post).save(try existingPost.document())
+                DatabaseManager().database.getCollection(Article).save(try existingArticle.document())
                 response.redirectTo("/\(modelName)s/\(identifier)")
             } catch {
                 print(error)
             }
         }
-        
+        */
         response.requestCompletedCallback()
     }
     
     func edit(identifier: Int, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
-        guard let post = getPostWithIdentifier(identifier) else {
+        guard let post = getUserWithIdentifier(identifier) else {
             return MustacheEvaluationContext.MapType()
         }
         
-        let values: [String:Any] = ["post": post.keyValues()]
+        let values: [String:Any] = ["author": post.keyValues()]
         
         return values
     }
@@ -103,11 +109,12 @@ class AuthorController: RESTController {
         // Handle new post request
         if let email = request.param("email"),
             name = request.param("name"),
+            username = request.param("username"),
             password = request.param("password"),
             password2 = request.param("password2")
         {
             
-            // Valid Post
+            // Valid Article
             guard password == password2 else {
                 response.setStatus(500, message: "The passwords did not match.")
                 return
@@ -135,7 +142,7 @@ class AuthorController: RESTController {
                 
             }
             
-            guard let author = Author.create(name, email: email, password: password, pictureURL: pictureURL) else {
+            guard let author = Author.create(name, email: email, password: password, username: username, pictureURL: pictureURL) else {
                 response.setStatus(500, message: "The user was not able to be created.")
                 return
 
@@ -149,15 +156,15 @@ class AuthorController: RESTController {
     
     func delete(identifier: Int, request: WebRequest, response: WebResponse) {
         
-        if let postBSON = DatabaseManager().database.getCollection(Post).find(identifier) {
+        if let postBSON = DatabaseManager().database.getCollection(Article).find(identifier) {
             
             do {
                 
-                let post = Post(bson: postBSON)
+                let post = Article(bson: postBSON)
                 let query: [String: JSONValue] = ["_id": post.identifierDictionary!]
                 let jsonEncode = try JSONEncoder().encode(query)
                 
-                DatabaseManager().database.getCollection(Post).remove(try! BSON(json: jsonEncode))
+                DatabaseManager().database.getCollection(Article).remove(try! BSON(json: jsonEncode))
                 
             } catch {
                 print(error)
