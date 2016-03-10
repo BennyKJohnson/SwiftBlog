@@ -11,17 +11,22 @@ import MongoDB
 
 class DatabaseManager {
 
-    let mongo =  MongoClient(uri: "mongodb://localhost")
+    let mongo: MongoClient
     
-    static let databaseName: String = "swiftblog"
+    static let databaseName = "swiftblog"
+    static let mongoURI = "mongodb://localhost"
 
     var database: MongoDatabase {
         return mongo.getDatabase(DatabaseManager.databaseName)
     }
     
-    func prepareDatabase() {
+    func objects(type: DBManagedObject.Type) -> MongoCollection {
+        return database.getCollection(type)
+    }
+    
+    init() throws {
         
-        // Check status
+        mongo = MongoClient(uri: DatabaseManager.mongoURI)
         let status = mongo.serverStatus()
         
         switch status {
@@ -36,8 +41,7 @@ class DatabaseManager {
         default:
             assert(false, "Strange reply type \(status)")
         }
-        
-       // populateBlogPosts()
+
     }
     
    }

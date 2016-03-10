@@ -17,13 +17,23 @@ protocol DBManagedObject {
     
     func document() throws -> BSON
     
+    var ignoredProperties: [String] { get }
+    
     init(bson: BSON)
+    
+    init?(identifier: String)
+    
     
 }
 
 typealias ObjectID = Dictionary<JSONKey, JSONValue>?
 
 extension DBManagedObject {
+    
+    var ignoredProperties: [String] {
+        return []
+    }
+    
     
     var identifierDictionary: ObjectID? {
         
@@ -57,7 +67,7 @@ extension DBManagedObject {
         
         for child in Mirror(reflecting: self).children {
             
-            if let key = child.label where key.characters[key.startIndex] != "_" {
+            if let key = child.label where key.characters[key.startIndex] != "_" && !ignoredProperties.contains(key) {
                 properties[key] = child.value as Any
             }
         }

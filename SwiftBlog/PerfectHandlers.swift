@@ -37,7 +37,7 @@ public func PerfectServerModuleInit() {
 
     print("\(Routing.Routes.description)")
     
-    let databaseManager = DatabaseManager()
-    databaseManager.prepareDatabase()
+    // Check database status
+    try! DatabaseManager()
     
 }

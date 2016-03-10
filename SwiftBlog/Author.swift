@@ -22,7 +22,20 @@ final class Author: Object {
     
     var authKey: String
     
-   // var posts: [Post] = []
+    var articleIDs: [String] = []
+    
+    lazy var articles: [Article] = {
+    
+    var queriedArticles: [Article] = []
+    // Query articles via id
+    for articleID in self.articleIDs {
+        if let article = Article(identifier: articleID) {
+                queriedArticles.append(article)
+        }
+    }
+  
+        return queriedArticles
+    }()
     
     init(email: String, name: String, username: String, authKey: String) {
         
@@ -35,4 +48,7 @@ final class Author: Object {
         self.authKey = authKey
         
     }
+    
+  
+    
 }

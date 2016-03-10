@@ -18,7 +18,7 @@ class AuthorController: RESTController {
         var values = MustacheEvaluationContext.MapType()
         
         // Get Articles
-        let db = DatabaseManager().database
+        let db = try! DatabaseManager().database
         let postsBSON = db.getCollection(Author).find()
         var posts: [[String: Any]] = []
         
@@ -35,7 +35,8 @@ class AuthorController: RESTController {
     }
     
     func getUserWithIdentifier(identifier: Int) -> Author? {
-        let db = DatabaseManager().database
+        let db = try! DatabaseManager().database
+        
         let postsBSON = db.getCollection(Author).find(BSON(), fields: nil, flags: MongoQueryFlag(rawValue: 0), skip: identifier, limit: 1, batchSize: 0)
         guard let postBSON = postsBSON?.next() else {
             // response.setStatus(404, message: "Article not found")
@@ -92,9 +93,18 @@ class AuthorController: RESTController {
         response.requestCompletedCallback()
     }
     
-    func edit(identifier: Int, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
+    func getModelWithIdentifier(identifier: String) -> Author? {
+
+        if let id = Int(identifier)  {
+            return getUserWithIdentifier(id)
+        } else {
+           return Author(username: identifier)
+        }
+    }
+    
+    func edit(identifier: String, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
-        guard let post = getUserWithIdentifier(identifier) else {
+        guard let post = getModelWithIdentifier(identifier) else {
             return MustacheEvaluationContext.MapType()
         }
         
@@ -105,6 +115,10 @@ class AuthorController: RESTController {
     
     
     func new(request: WebRequest, response: WebResponse) {
+        
+        if let error = request.param("error") {
+            print(error)
+        }
         
         // Handle new post request
         if let email = request.param("email"),
@@ -142,11 +156,23 @@ class AuthorController: RESTController {
                 
             }
             
-            guard let author = Author.create(name, email: email, password: password, username: username, pictureURL: pictureURL) else {
-                response.setStatus(500, message: "The user was not able to be created.")
+            do {
+                guard let author = try Author.create(name, email: email, password: password, username: username, pictureURL: pictureURL) else {
+                    response.setStatus(500, message: "The user was not able to be created.")
+                    return
+                }
+                
+                // Create Session
+                let session = response.getSession("user")
+                session["user_id"] = author._objectID
+                
+            } catch {
+                print(error)
+                response.redirectTo(request.requestURI() + "?error=bad")
+                response.requestCompletedCallback()
                 return
-
             }
+          
             
             response.redirectTo("/")
         }
@@ -156,7 +182,7 @@ class AuthorController: RESTController {
     
     func delete(identifier: Int, request: WebRequest, response: WebResponse) {
         
-        if let postBSON = DatabaseManager().database.getCollection(Article).find(identifier) {
+        if let postBSON = try! DatabaseManager().database.getCollection(Article).find(identifier) {
             
             do {
                 
@@ -164,7 +190,7 @@ class AuthorController: RESTController {
                 let query: [String: JSONValue] = ["_id": post.identifierDictionary!]
                 let jsonEncode = try JSONEncoder().encode(query)
                 
-                DatabaseManager().database.getCollection(Article).remove(try! BSON(json: jsonEncode))
+                try! DatabaseManager().database.getCollection(Article).remove(try! BSON(json: jsonEncode))
                 
             } catch {
                 print(error)

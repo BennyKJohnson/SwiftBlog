@@ -15,7 +15,7 @@ extension Article: DBManagedObject {
     
     convenience init?(urlTitle: String) {
         
-        let database = DatabaseManager().database
+        let database = try! DatabaseManager().database
         
         // Find Author with email
         
@@ -30,6 +30,12 @@ extension Article: DBManagedObject {
         }
         
         self.init(bson: postBSON)
+    }
+    
+    convenience init?(identifier: String) {
+        
+        return nil
+        
     }
     
     convenience init(bson: BSON) {
@@ -81,7 +87,7 @@ extension Article: DBManagedObject {
     }
     
     func keyValues() -> [String: Any] {
-        return ["title": title, "body": body,"urlTitle": urlTitle, "author": ["name": author.name, "pictureURL": "/../resources/pictures/\(author.pictureURL)"] as [String: Any]]
+        return ["title": title, "body": body,"urlTitle": urlTitle, "author": ["name": author.name, "pictureURL": "/../resources/pictures/\(author.pictureURL)", "authorPath": author.path] as [String: Any]]
         //return ["title": title, "body": body, "author": ["name": author.name, "pictureURL": "/resources/pictures/\(author.pictureURL)"]]
     }
     

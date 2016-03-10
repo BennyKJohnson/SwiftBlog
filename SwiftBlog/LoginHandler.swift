@@ -47,7 +47,9 @@ class LoginHandler: RequestHandler {
             if let email = request.param("email"), password = request.param("password") {
                 // Get User with Email
                 guard let user = Author(email: email) else {
-                    return
+                    
+                    response.redirectTo(request.requestURI())
+                    return response.requestCompletedCallback()
                 }
                 
                 // Encrpyt provided password
@@ -61,7 +63,7 @@ class LoginHandler: RequestHandler {
                     //∂session.commit()
                     
                     
-                    response.redirectTo("/authors")
+                    response.redirectTo("/")
                 }
                 
                 

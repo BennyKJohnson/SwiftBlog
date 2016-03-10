@@ -15,17 +15,19 @@ This is the mustache template file for the tap tracker example.
 	<div class="row medium-8 large-7 columns">
 
 		{{#post}}
-		<div class="blog-post">
+		<article class="blog-post">
+
 			<h3><a href="/articles/{{urlTitle}}">{{title}}</a></h3>
 			<p>{{body}}</p>
+           
 			<div class="callout">
 				<ul class="menu simple">
 					{{#author}}
-					<li><a href="#">Author: {{name}}</a></li>
+                    <li><a href="{{authorPath}}">Author: {{name}}</a></li>
 					{{/author}}
 				</ul>
 			</div>
-		</div>
+		</article>
 		{{/post}}
 
 	</div>

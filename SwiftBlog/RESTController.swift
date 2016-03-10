@@ -25,7 +25,7 @@ protocol RESTController: RequestHandler {
     
     func delete(identifier: Int, request: WebRequest, response: WebResponse)
     
-    func edit(identifier: Int, request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
+    func edit(identifier: String, request: WebRequest, response: WebResponse) throws ->  MustacheEvaluationContext.MapType
     
     func beforeAction(request: WebRequest, response: WebResponse) -> MustacheEvaluationContext.MapType
     
@@ -98,29 +98,31 @@ extension RESTController {
                     
                 default:
       
-                    let templateURL = request.documentRoot + "/templates/\(modelName)s/show.mustache"
-                    let values = try! show(identifier, request: request, response: response)
-                    
-                    response.appendBodyString(loadPageWithTemplate(request, url: templateURL, withValues: values))
-                    response.requestCompletedCallback()
-                    
+                    if let action = request.urlVariables["action"]{
+                        print("Found action \(action)")
+                        
+                        // Call Show
+                        let templateURL = request.documentRoot + "/templates/\(modelName)s/edit.mustache"
+                        
+                        var values = try! edit(identifier, request: request, response: response)
+                        values["url"] = "/\(modelName)s/\(identifier)"
+                        
+                        response.appendBodyString(loadPageWithTemplate(request, url: templateURL, withValues: values))
+                        response.requestCompletedCallback()
+                        
+                        
+                    } else {
+                        
+                        let templateURL = request.documentRoot + "/templates/\(modelName)s/show.mustache"
+                        let values = try! show(identifier, request: request, response: response)
+                        
+                        response.appendBodyString(loadPageWithTemplate(request, url: templateURL, withValues: values))
+                        response.requestCompletedCallback()
+                    }
                 }
                 
                 
-                if let _ = request.urlVariables["action"]{
-                    
-                    /*
-                    // Call Show
-                    let templateURL = request.documentRoot + "/templates/\(modelName)s/edit.mustache"
-                 
-                    var values = try! edit(identifier, request: request, response: response)
-                    values["url"] = "/\(modelName)s/\(identifier)"
-                    
-                    response.appendBodyString(parseMustacheFromURL(templateURL, withValues: values))
-                    response.requestCompletedCallback()
-*/
-                    
-                } 
+               
             }
             
         } else {

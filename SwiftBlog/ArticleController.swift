@@ -53,7 +53,7 @@ class ArticleController: RESTController {
         var values = getUserInformation(request, response: response)
         
         // Get Articles
-        let db = DatabaseManager().database
+        let db = try! DatabaseManager().database
         let postsBSON = db.getCollection(Article).find()
         var posts: [[String: Any]] = []
         
@@ -71,7 +71,7 @@ class ArticleController: RESTController {
     }
     
     func getArticleWithIdentifier(identifier: Int) -> Article? {
-        let db = DatabaseManager().database
+        let db = try! DatabaseManager().database
         let postsBSON = db.getCollection(Article).find(BSON(), fields: nil, flags: MongoQueryFlag(rawValue: 0), skip: identifier, limit: 1, batchSize: 0)
         guard let postBSON = postsBSON?.next() else {
             // response.setStatus(404, message: "Article not found")
@@ -83,16 +83,21 @@ class ArticleController: RESTController {
         return post
     }
 
-    func show(identifier: String, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
-        let post: Article?
-        var values: [String:Any] = beforeAction(request, response: response)
-       
+    func getModelWithIdentifier(identifier: String) -> Article? {
+        
         if let id = Int(identifier)  {
-            post = getArticleWithIdentifier(id)
+            return getArticleWithIdentifier(id)
         } else {
-            post = Article(urlTitle: identifier)
+            return Article(urlTitle: identifier)
         }
         
+    }
+    
+    func show(identifier: String, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
+        let post: Article? = getModelWithIdentifier(identifier)
+        
+        var values: [String:Any] = getUserInformation(request, response: response)
+    
         // Query Article
         // Get Articles
         guard let requestedArticle = post else {
@@ -116,7 +121,7 @@ class ArticleController: RESTController {
             
             // Save Article
             do {
-                DatabaseManager().database.getCollection(Article).save(try existingArticle.document())
+                try! DatabaseManager().database.getCollection(Article).save(try existingArticle.document())
                 response.redirectTo("/\(modelName)s/\(identifier)")
             } catch {
                 print(error)
@@ -126,14 +131,14 @@ class ArticleController: RESTController {
         response.requestCompletedCallback()
     }
     
-    func edit(identifier: Int, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
+    func edit(identifier: String, request: WebRequest, response: WebResponse) throws -> MustacheEvaluationContext.MapType {
         
         let beforeValues = beforeAction(request, response: response)
         guard var values = beforeValues else {
             return MustacheEvaluationContext.MapType()
         }
   
-        guard let post = getArticleWithIdentifier(identifier) else {
+        guard let post = getModelWithIdentifier(identifier) else {
             return MustacheEvaluationContext.MapType()
         }
         
@@ -153,7 +158,16 @@ class ArticleController: RESTController {
             
             // Save Article
             do {
-                DatabaseManager().database.getCollection(Article).insert(try newArticle.document())
+                let database = try! DatabaseManager().database
+                newArticle._objectID = database.generateObjectID()
+                
+                database.getCollection(Article).insert(try newArticle.document())
+                
+                // Update Author
+                author.articles.append(newArticle)
+                try database.insert(author)
+
+                
                 response.redirectTo("/")
             } catch {
                 
@@ -175,7 +189,7 @@ class ArticleController: RESTController {
     
     func delete(identifier: Int, request: WebRequest, response: WebResponse) {
         
-        if let postBSON = DatabaseManager().database.getCollection(Article).find(identifier) {
+        if let postBSON = try! DatabaseManager().database.getCollection(Article).find(identifier) {
             
             do {
                 
@@ -183,7 +197,7 @@ class ArticleController: RESTController {
                 let query: [String: JSONValue] = ["_id": post.identifierDictionary!]
                 let jsonEncode = try JSONEncoder().encode(query)
                 
-                DatabaseManager().database.getCollection(Article).remove(try! BSON(json: jsonEncode))
+                try! DatabaseManager().database.getCollection(Article).remove(try! BSON(json: jsonEncode))
                 
             } catch {
                 print(error)

@@ -7,12 +7,13 @@
 //
 
 import MongoDB
+import libmongoc
 import PerfectLib
 
 
 extension MongoDatabase {
+    
     func getCollection(type: DBManagedObject.Type) -> MongoCollection {
-        
         return self.getCollection(type.collectionName)
     }
     
@@ -70,3 +71,21 @@ extension MongoCollection {
     
 }
 
+extension MongoDatabase {
+    
+    func generateObjectID() -> String {
+        
+        var rawPointer = bson_oid_t()
+        bson_oid_init(&rawPointer, nil)
+        let objectIDStringRaw = UnsafeMutablePointer<Int8>.alloc(100)
+        bson_oid_to_string(&rawPointer, objectIDStringRaw)
+        
+        let objectIDString = String.fromCString(objectIDStringRaw)
+        objectIDStringRaw.destroy()
+        
+        return objectIDString!
+        
+    }
+    
+    
+}
